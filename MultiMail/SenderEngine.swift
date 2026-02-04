@@ -9,6 +9,7 @@ class SenderEngine: ObservableObject {
     @Published var logs: [String] = []
     
     @Published var subject: String = ""
+    @Published var senderEmail: String = ""
     @Published var bodyTemplate: String = ""
     @Published var minDelay: Double = 2.0
     @Published var maxDelay: Double = 5.0
@@ -44,7 +45,9 @@ class SenderEngine: ObservableObject {
                 let personalizedBody = bodyTemplate.replacingOccurrences(of: "{{name}}", with: contact.name)
                 
                 do {
-                    try await MailService.shared.sendEmail(recipient: contact.email, subject: subject, body: personalizedBody)
+                    // Send with optional sender override
+                    let from = senderEmail.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty ? nil : senderEmail
+                    try await MailService.shared.sendEmail(recipient: contact.email, subject: subject, body: personalizedBody, sender: from)
                     contacts[index].status = .sent
                     logs.append("[\(Date())] Sent to: \(contact.email)")
                 } catch {

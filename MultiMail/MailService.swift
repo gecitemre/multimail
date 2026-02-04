@@ -21,7 +21,7 @@ class MailService {
     private init() {}
     
     /// Sends an email using Mail.app via AppleScript.
-    func sendEmail(recipient: String, subject: String, body: String) async throws {
+    func sendEmail(recipient: String, subject: String, body: String, sender: String? = nil) async throws {
         // 1. Ensure Mail is running using NSWorkspace (more reliable than AppleScript activate)
         guard let mailUrl = NSWorkspace.shared.urlForApplication(withBundleIdentifier: "com.apple.mail") else {
             throw MailError.appleScriptError("Could not find Mail.app")
@@ -50,12 +50,15 @@ class MailService {
         let escapedBody = body.appleScriptEscaped
         let escapedRecipient = recipient.appleScriptEscaped
         
+        // Prepare sender assignment apple script part
+        let senderProperty = sender != nil && !sender!.isEmpty ? "sender:\"\(sender!.appleScriptEscaped)\", " : ""
+        
         // AppleScript to control Mail.app with HTML content support
         // We explicitly 'activate' to ensure the process is running and can receive commands.
         let scriptSource = """
         tell application "Mail"
             activate
-            set theMessage to make new outgoing message with properties {subject:"\(escapedSubject)", visible:true}
+            set theMessage to make new outgoing message with properties {\(senderProperty)subject:"\(escapedSubject)", visible:true}
             tell theMessage
                 set html content to "\(escapedBody)"
                 make new to recipient at end of to recipients with properties {address:"\(escapedRecipient)"}

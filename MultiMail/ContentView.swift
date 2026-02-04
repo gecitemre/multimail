@@ -82,6 +82,13 @@ struct ContentView: View {
                                 .font(.title3)
                                 .fontWeight(.bold)
                             
+                            TextField("From (Optional)", text: $engine.senderEmail)
+                                .textFieldStyle(.plain)
+                                .font(.body)
+                                .padding(10)
+                                .background(RoundedRectangle(cornerRadius: 8).fill(Color(NSColor.controlBackgroundColor)))
+                                .overlay(RoundedRectangle(cornerRadius: 8).stroke(Color.secondary.opacity(0.2)))
+                            
                             TextField("Subject", text: $engine.subject)
                                 .textFieldStyle(.plain)
                                 .font(.title3)
